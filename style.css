@@ -254,6 +254,23 @@ body {
 }
 h2 {
   font-size: 4rem;
+  animation: slideIn 2s ease-in-out;
+}
+p {
+  animation: slideIn 3s ease-in-out;
+}
+@keyframes slideIn {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.5;
+    color: #4af611;
+  }
+  100% {
+    color: white;
+    opacity: 1;
+  }
 }
 
 .category {
@@ -265,6 +282,7 @@ h2 {
   cursor: pointer;
   height: fit-content;
   text-rendering: optimizeLegibility, optimizeSpeed;
+  animation: slideIn 2s ease-in-out;
 }
 .category:hover {
   color: #4af611;

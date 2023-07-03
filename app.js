@@ -49,29 +49,27 @@ const welcomeDiv = document.querySelector("#welcome");
 const pickCategory = document.querySelector(".pickCategory");
 const category = document.querySelector(".category");
 const allCategory = document.querySelector("#allCategory");
+const choice = document.querySelector(".choose");
+const riddle = document.querySelector("#riddle");
 pickCategory.className = "hide";
 
 const buttonPlay = () => {
   playButton.addEventListener("click", () => {
     welcomeDiv.className = "hide";
+    riddle.className = "hide";
     playButton.className = "hide";
     pickCategory.className = "visible";
-    allCategoryArray.forEach((cat) => {
-      const div = document.createElement("div");
-      div.textContent = cat;
-
-      category.appendChild(div);
-      div.className = "category";
+    pickCategory.style = "cursor:pointer";
+    choice.addEventListener("click", () => {
+      riddle.className = "visible";
     });
-
-    allCategory.appendChild(category);
   });
 };
 
 buttonPlay();
 allCategory.addEventListener("mousemove", (event) => {
   const scrollSpeed = 5;
-  const direction = event.movementX > 0 ? 1 : -1;
+  const direction = event.movementX > 0 ? 1 : 0;
   allCategory.scrollLeft += direction * scrollSpeed;
 });
 
@@ -84,3 +82,29 @@ const chooseMyCategory = () => {
 };
 
 document.addEventListener("DOMContentLoaded", chooseMyCategory);
+
+const fetchIndovinello = async () => {
+  fetch("riddles.json")
+    .then((response) => response.json())
+    .then((data) => {
+      const riddles = data.riddles;
+      const randomIndex = Math.floor(Math.random() * riddles.length);
+      const randomRiddle = riddles[randomIndex];
+      console.log(randomRiddle.question);
+      return riddles;
+    })
+    .catch((error) => {
+      console.error("Error fetching riddles:", error);
+    });
+};
+/*
+allCategoryArray.forEach((cat) => {
+  const div = document.createElement("div");
+  div.textContent = cat;
+
+  category.appendChild(div);
+  div.className = "category";
+});
+
+allCategory.appendChild(category);
+*/
