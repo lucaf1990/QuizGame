@@ -1,10 +1,8 @@
 body {
   font-family: "Share Tech", sans-serif;
   font-size: 68px;
+
   color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   margin: 0;
   width: 100vw;
   height: 100vh;
@@ -22,6 +20,7 @@ body {
 }
 #mainGame {
   display: flex;
+
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -31,7 +30,8 @@ body {
 }
 
 #title {
-  margin: 2rem;
+  margin: 5rem;
+  margin-top: 8rem;
   animation: start 5s 1, text-shadow-anim 4s 2;
   color: #4af611;
 }
@@ -69,7 +69,7 @@ body {
     margin-left: 30rem;
   }
   60% {
-    transform: rotate(95deg) scale(0.8);
+    transform: rotate(45deg) scale(0.8);
     margin-top: 15rem;
     color: #0400ff;
     text-shadow: -1px 1px #f9a825, -2px 2px #2196f3, -4px 4px #26c6da,
@@ -251,4 +251,29 @@ body {
     opacity: 0;
     visibility: hidden;
   }
+}
+h2 {
+  font-size: 4rem;
+}
+
+.category {
+  font-size: 3rem;
+  color: rgb(255, 255, 255);
+  text-transform: uppercase;
+  margin-left: 4rem;
+  display: flex;
+  cursor: pointer;
+  height: fit-content;
+  text-rendering: optimizeLegibility, optimizeSpeed;
+}
+.category:hover {
+  color: #4af611;
+}
+#allCategory {
+  overflow: hidden;
+  margin-right: 5rem;
+}
+
+.pickCategory::-webkit-scrollbar {
+  display: none;
 }
