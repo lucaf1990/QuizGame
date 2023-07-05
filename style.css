@@ -1,13 +1,52 @@
+@keyframes shimmer {
+  0% {
+    color: #4af611;
+    font-size: 3rem;
+    text-shadow: -1px 1px #f9a825, -2px 2px #2196f3, -4px 4px #26c6da,
+      -6px 6px #f48fb1;
+  }
+  20% {
+    color: #d75702;
+    text-shadow: -1px 1px #f9a825, -2px 2px #2196f3;
+    font-size: 3.5rem;
+  }
+  30% {
+    color: #11e09b;
+    text-shadow: -1px 1px #f9a825, -2px 2px #2196f3;
+    font-size: 4rem;
+  }
+  40% {
+    color: #ac0aa1;
+    text-shadow: -1px 1px #f9a825, -2px 2px #2196f3;
+    font-size: 4.5rem;
+  }
+  50% {
+    color: #ef3550;
+    text-shadow: -1px 1px #f9a825, -2px 2px #2196f3;
+    font-size: 5rem;
+  }
+  70% {
+    color: rgb(86, 8, 79);
+    font-size: 5.5rem;
+  }
+  90% {
+    color: rgb(148, 112, 4);
+    font-size: rem;
+  }
+  100% {
+    color: #4af611;
+    font-size: 2rem;
+    text-shadow: -1px 1px #f9a825, -2px 2px #2196f3, -4px 4px #26c6da,
+      -6px 6px #f48fb1;
+  }
+}
+
 body {
   font-family: "Share Tech", sans-serif;
   font-size: 68px;
 
-  color: white;
   margin: 0;
-  width: 100vw;
-  height: 100vh;
-  text-shadow: 8px 8px 10px #0000008c;
-  background-color: #343a40;
+  height: 100dvh;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill-rule='evenodd'%3E%3Cg id='hexagons' fill='%239C92AC' fill-opacity='0.25' fill-rule='nonzero'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"),
     linear-gradient(to right top, #343a40, #2b2c31, #211f22, #151314, #000000);
   font-family: "Oxygen", sans-serif;
@@ -111,7 +150,14 @@ body {
   z-index: 1;
   background-color: #000000;
 }
+#allCategory {
+  overflow: hidden;
+  margin-right: 5rem;
+}
 
+.pickCategory::-webkit-scrollbar {
+  display: none;
+}
 .button:hover {
   color: #000000;
   cursor: pointer;
@@ -235,13 +281,65 @@ body {
     visibility: hidden;
   }
 }
-h2 {
-  font-size: 4rem;
-  animation: slideIn 2s ease-in-out;
+
+@keyframes color-change {
+  0% {
+    color: red;
+    opacity: 1;
+    transform: rotate(0deg);
+  }
+  10% {
+    color: orange;
+    opacity: 0.5;
+    transform: rotate(20deg);
+  }
+  20% {
+    color: yellow;
+    opacity: 1;
+    transform: rotate(-20deg);
+  }
+  30% {
+    color: green;
+    opacity: 0.5;
+    transform: rotate(40deg);
+  }
+  40% {
+    color: blue;
+    opacity: 1;
+    transform: rotate(-40deg);
+  }
+  50% {
+    color: indigo;
+    opacity: 0.5;
+    transform: rotate(60deg);
+  }
+  60% {
+    color: violet;
+    opacity: 1;
+    transform: rotate(-60deg);
+  }
+  70% {
+    color: purple;
+    opacity: 0.5;
+    transform: rotate(80deg);
+  }
+  80% {
+    color: pink;
+    opacity: 1;
+    transform: rotate(-80deg);
+  }
+  90% {
+    color: cyan;
+    opacity: 0.5;
+    transform: rotate(100deg);
+  }
+  100% {
+    color: red;
+    opacity: 1;
+    transform: rotate(0deg);
+  }
 }
-p {
-  animation: slideIn 3s ease-in-out;
-}
+
 @keyframes slideIn {
   0% {
     opacity: 0;
@@ -265,42 +363,190 @@ p {
   cursor: pointer;
   height: fit-content;
   text-rendering: optimizeLegibility, optimizeSpeed;
-  animation: slideIn 2s ease-in-out;
-}
-.category:hover {
-  color: #4af611;
-}
-#allCategory {
-  overflow: hidden;
-  margin-right: 5rem;
 }
 
-.pickCategory::-webkit-scrollbar {
-  display: none;
+.pickCategory {
+  margin-top: 10rem;
 }
 
-#riddle {
-  font-size: 2rem;
+.choose {
   text-align: center;
   display: flex;
+  height: 80dvh;
+  align-items: center;
+  justify-content: center;
+  animation: shimmer 5s linear infinite;
+}
+.choose:hover {
+  cursor: pointer;
+}
+
+@keyframes magic {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes fadeIn {
+  0% {
+    display: none !important;
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+#riddle {
+  display: flex;
   flex-direction: column;
-  margin: auto;
-  margin-top: 10rem;
+
   align-items: center;
 }
 #riddle p {
-  color: #4af611;
-  border: 1px solid #4af611;
-  border-radius: 15px;
-  margin: auto 2rem;
-  padding: 2rem;
-}
-#riddle input {
+  position: relative;
+
   margin-top: 2rem;
-  width: 200px;
-  height: 30px;
-  border-radius: 15px;
-  padding-left: 20px;
+  font-size: 2rem;
+  color: #4af611;
+  padding: 4rem 1rem;
 }
-#riddle div {
+
+#riddle p::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 50px 0px #4af611;
+  opacity: 0;
+  animation: aura-animation 3s infinite;
+  background-color: black;
+}
+
+@keyframes aura-animation {
+  0% {
+    transform: scale(1.2);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+    background-color: #4af611;
+  }
+  100% {
+    transform: scale(1.2);
+    opacity: 0.5;
+  }
+}
+
+#riddle h5 {
+  text-align: center;
+
+  color: #4af611;
+  font-size: 3rem;
+}
+
+#riddle input {
+  width: 300px;
+  height: 30px;
+  padding: 20px 30px;
+  margin-right: 3rem;
+
+  font-size: 1rem;
+  font-family: "Share Tech", sans-serif;
+  color: #000000;
+  border-radius: 2rem;
+  background-color: #4af611;
+  border: none;
+}
+input::selection {
+  border: none;
+}
+#riddle button {
+  width: 100px;
+  height: 40px;
+  font-size: 1rem;
+  border: 2px solid #000000;
+  border-radius: 0.5rem;
+  background-color: #4af611;
+}
+
+#riddle button {
+  cursor: pointer;
+}
+
+.category {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@media screen and (max-width: 1500px) {
+  #riddle h5 {
+    font-size: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 2rem;
+    margin-top: 5rem;
+  }
+  #riddle p {
+    font-size: 2rem;
+    margin: 3rem 2rem;
+    text-align: center;
+    border-radius: 3rem;
+    padding: auto;
+  }
+  #riddle input {
+    width: 200px;
+    height: 20px;
+    font-size: 0.8rem;
+    margin-right: 3rem;
+  }
+
+  #riddle button {
+    width: 70px;
+    height: 30px;
+  }
+  .button span:nth-child(2) {
+    left: calc(50% - 2px);
+    top: -150px;
+    transform-origin: top;
+  }
+  .button span:nth-child(3) {
+    top: calc(50% - 2px);
+    right: -200px;
+    transform-origin: right;
+  }
+  .button span:nth-child(1) {
+    top: calc(50% - 2px);
+    left: -200px;
+    transform-origin: left;
+  }
+  .choose {
+    font-size: 2rem;
+  }
+}
+
+#riddle span {
+  font-size: 2rem;
+  color: red;
+}
+
+#riddle div:nth-last-child(1) {
+  font-size: 2rem;
+  color: white;
+  margin-top: 2rem;
+  border: #4af611 2px solid;
+  border-radius: 2rem;
+  padding: 1rem 2rem;
 }
