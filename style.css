@@ -153,9 +153,7 @@ body {
 
 #allCategory {
   max-width: 100%;
-
   justify-content: center;
-
   align-items: center;
   display: flex;
   flex-wrap: wrap;
