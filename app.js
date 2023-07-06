@@ -51,7 +51,7 @@ const choice = document.querySelector(".choose");
 const riddle = document.querySelector("#riddle");
 let value = "";
 riddle.className = "hide";
-
+const userChoice = document.createElement("h6");
 pickCategory.className = "hide";
 const body = document.querySelector("body");
 const buttonPlay = () => {
@@ -65,7 +65,7 @@ const buttonPlay = () => {
     pickCategory.className = "hide";
     riddle.className = "visible";
     let title = document.createElement("h5");
-    let p = document.createElement("p");
+    let indovinello = document.createElement("p");
     let container = document.createElement("div");
     let input = document.createElement("input");
     input.placeholder = "";
@@ -74,13 +74,13 @@ const buttonPlay = () => {
     input.className = "inputRiddle";
     let question = await fetchIndovinello();
     body.style = "animation:none";
-    p.innerText = question.question;
+    indovinello.innerText = question.question;
     title.innerText =
       "YOU MUST UNLOCK THE SECRET OF THE EYE \n TO REVEAL THE HIDDEN PATH";
 
     button.innerHTML = "TRY";
     riddle.appendChild(title);
-    riddle.appendChild(p);
+    riddle.appendChild(indovinello);
     riddle.append(container);
     container.style = "margin:2rem";
     container.appendChild(input);
@@ -101,22 +101,19 @@ const buttonPlay = () => {
         value.toLowerCase() === question.answer.toLowerCase() ||
         value.toUpperCase() === question.answer.toUpperCase()
       ) {
-        pickCategory.className = "visible";
-
         allCategoryArray.forEach((cat) => {
           const div = document.createElement("div");
+          const p = document.createElement("p");
+          p.textContent = cat;
 
-          div.textContent = cat;
-
-          category.appendChild(div);
-          div.className = "category";
+          div.appendChild(p);
+          allCategory.appendChild(div);
+          p.className = "singleCategory";
+          div.className = "categories";
         });
+
         riddle.style = "display:none";
         pickCategory.className = "hide";
-        const p = document.createElement("p");
-        p.innerText = "Generate ranodm number";
-        allCategory.appendChild(category);
-        pickCategory.appendChild(p);
       } else if (value === "") {
         message.innerText = "";
       } else {
@@ -146,16 +143,36 @@ allCategory.addEventListener("mousemove", (event) => {
   allCategory.scrollLeft += direction * scrollSpeed;
 });
 
-let chooseCategory = "";
-const chooseMyCategory = () => {
-  category.addEventListener("click", (event) => {
-    chooseCategory = event.target.textContent.toLowerCase().split(" ").join("");
-    console.log(chooseCategory);
+const chooseMyCategory = (callback) => {
+  allCategory.addEventListener("click", (event) => {
+    const selectedCategory = event.target.textContent;
+
+    callback(selectedCategory);
+    return selectedCategory;
+  });
+};
+let chooseCategory = (selectedCategory) => {
+  console.log(
+    "Selected category:",
+    selectedCategory.toLowerCase().split(" ").join("")
+  );
+};
+chooseMyCategory(chooseCategory);
+
+const appendSelectedCategory = async () => {
+  let div = document.createElement("div");
+  allCategory.appendChild(div);
+  div.className = "pickDiv";
+  let p = document.createElement("p");
+  p.className = "picked";
+  div.appendChild(p);
+
+  chooseMyCategory((selectedCategory) => {
+    p.textContent = `CATEGORY: ${selectedCategory}`;
   });
 };
 
-document.addEventListener("DOMContentLoaded", chooseMyCategory);
-
+appendSelectedCategory();
 const fetchIndovinello = async () => {
   try {
     const response = await fetch("riddles.json");
