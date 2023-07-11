@@ -16,9 +16,21 @@ const fetchIndovinello = async () => {
     console.error("Error fetching riddles:", error);
   }
 };
-const fetchQuestion = async (category, limit) => {
+const fetchQuestion = async (category, difficulty) => {
+  let limit;
+
+  if (difficulty === "EASY") {
+    limit = 10;
+  } else if (difficulty === "MEDIUM") {
+    limit = 15;
+  } else if (difficulty === "HARD") {
+    limit = 25;
+  } else if (difficulty === "CRAZY") {
+    limit = 30;
+  }
+
   try {
-    let res = await fetch(
+    const res = await fetch(
       `https://api.api-ninjas.com/v1/trivia?category=${category}&limit=${limit}`,
       {
         method: "GET",
@@ -29,9 +41,12 @@ const fetchQuestion = async (category, limit) => {
       }
     );
     if (res.ok) {
-      let data = await res.json();
-      console.log(data);
-      return data;
+      const data = await res.json();
+      const questions = data.map((question) => ({
+        question: question.question,
+        answer: question.answer,
+      }));
+      return questions;
     } else {
       console.log("Error getting data:", res.status);
     }
@@ -71,7 +86,6 @@ pickCategory.className = "hide";
 const body = document.querySelector("body");
 const buttonPlay = () => {
   playButton.addEventListener("click", () => {
-    welcomeDiv.className = "hide";
     riddle.className = "hide";
     playButton.className = "hide";
     pickCategory.className = "visible";
@@ -79,6 +93,7 @@ const buttonPlay = () => {
   choice.addEventListener("click", async () => {
     pickCategory.className = "hide";
     riddle.className = "visible";
+    welcomeDiv.className = "hide";
     let title = document.createElement("h5");
     let indovinello = document.createElement("p");
     let container = document.createElement("div");
@@ -111,6 +126,9 @@ const buttonPlay = () => {
     riddleInput.addEventListener("change", (e) => {
       value = e.target.value;
     });
+    // Declare a variable to keep track of the help button
+    let helpButton;
+
     button.addEventListener("click", () => {
       if (
         value.toLowerCase() === question.answer.toLowerCase() ||
@@ -136,15 +154,25 @@ const buttonPlay = () => {
           message.innerText = "";
         }, 2000);
 
-        const div = document.createElement("div");
-        riddle.appendChild(div);
-        let timer = setTimeout(() => {
-          div.innerText = "HELP";
-          div.addEventListener("mouseover", () => {
-            div.innerText = question.answer;
-          });
-          clearTimeout(timer);
-        }, 0);
+        // Check if the help button already exists
+        if (!helpButton) {
+          const div = document.createElement("div");
+          riddle.appendChild(div);
+          const input = document.querySelector(".inputRiddle");
+          helpButton = input; // Assign the help button to the vbutton to the variable
+
+          let timer = setTimeout(() => {
+            div.innerText = "HELP";
+            div.addEventListener("mouseover", () => {
+              div.innerText = "Click here if you like to know the answer";
+            });
+            div.addEventListener("click", () => {
+              let answer = question.answer;
+              input.value = answer;
+            });
+            clearTimeout(timer);
+          }, 0);
+        }
       }
     });
   });
@@ -185,6 +213,7 @@ const appendSelectedCategory = async () => {
   let button1 = document.createElement("button");
   let button2 = document.createElement("button");
   let button3 = document.createElement("button");
+  let button4 = document.createElement("button");
   let start = document.createElement("button");
   start.className = "hide";
   allCategory.appendChild(div);
@@ -201,42 +230,54 @@ const appendSelectedCategory = async () => {
     start.className = "visible";
     chooseCategory(selectedCategory); // Call the callback with the selected category
   });
-
+  start.innerHTML = "START";
   text.textContent = "CHOOSE DIFFICULTY";
   button1.innerHTML = "EASY";
   button1.className = "myButton";
   button2.className = "myButton";
   button3.className = "myButton";
-  button2.innerHTML = "10";
-  button3.innerHTML = "15";
-  start.innerHTML = "START";
+  button2.innerHTML = "MEDIUM";
+  button3.innerHTML = "HARD";
+  button4.innerHTML = "CRAZY";
+
   question.appendChild(text);
   question.appendChild(button1);
   question.appendChild(button2);
   question.appendChild(button3);
-  div.appendChild(start);
+  question.appendChild(button4);
+
   div.appendChild(question);
+  let selectedDifficulty; // Declare a variable to store the selected difficulty
+
   button1.addEventListener("click", (e) => {
     e.stopPropagation();
-    let difficulty = chooseDifficulty("5");
-    return difficulty;
+    selectedDifficulty = "EASY"; // Store the selected difficulty
   });
+
   button2.addEventListener("click", (e) => {
     e.stopPropagation();
-    let difficulty = chooseDifficulty("10");
-    return difficulty;
+    selectedDifficulty = "MEDIUM"; // Store the selected difficulty
   });
+
   button3.addEventListener("click", (e) => {
     e.stopPropagation();
-    let difficulty = chooseDifficulty("15");
-    return difficulty;
+    selectedDifficulty = "HARD"; // Store the selected difficulty
   });
+
+  button4.addEventListener("click", (e) => {
+    e.stopPropagation();
+    selectedDifficulty = "CRAZY"; // Store the selected difficulty
+  });
+
+  div.appendChild(start);
   start.addEventListener("click", async () => {
     const selectedCategory = document.querySelector(".picked").textContent;
-    const selectedDifficulty = document.querySelector(".myButton").textContent;
 
     // Fetch questions based on the selected category and difficulty
-    const questions = await fetchQuestion(selectedCategory.toLowerCase(), "10");
+    const questions = await fetchQuestion(
+      selectedCategory.toLowerCase(),
+      selectedDifficulty // Use the selected difficulty variable
+    );
 
     // Call the startQuiz function with the fetched questions
     startQuiz(questions);
@@ -249,7 +290,55 @@ let wrongCounter = 0;
 const startQuiz = (questions) => {
   let correctCounter = 0;
   let wrongCounter = 0;
+  const showSummary = () => {
+    const pickDiv = document.querySelector(".pickDiv");
+    pickDiv.className = "hide";
+    const questionContainer = document.querySelector("#question-container");
+    questionContainer.className = "hide";
+    const questionCounter = document.querySelector(".counter");
+    questionCounter.className = "hide";
+    const skip = document.querySelector(".skip");
+    skip.className = "hide";
+    const summaryContainer = document.createElement("div");
+    summaryContainer.id = "summary-container";
 
+    // Create a heading for the summary
+    const summaryHeading = document.createElement("h2");
+    summaryHeading.textContent = "Quiz Summary";
+    summaryContainer.appendChild(summaryHeading);
+
+    // Loop through each question
+    questions.forEach((question, index) => {
+      const questionSummary = document.createElement("div");
+      questionSummary.classList.add("question-summary");
+
+      // Create a paragraph for the question
+      const questionElement = document.createElement("p");
+      questionElement.textContent = `Question ${index + 1}: ${
+        question.question
+      }`;
+      questionSummary.appendChild(questionElement);
+
+      // Create a paragraph for the user's answer
+      const userAnswerElement = document.createElement("p");
+      if (question.userAnswer !== undefined) {
+        userAnswerElement.textContent = `Your Answer: ${question.userAnswer}`;
+      } else {
+        userAnswerElement.textContent = "NO ANSWER -QUESTION WAS SKIPPED";
+      }
+
+      questionSummary.appendChild(userAnswerElement);
+
+      // Create a paragraph for the correct answer
+      const correctAnswerElement = document.createElement("p");
+      correctAnswerElement.textContent = `Correct Answer: ${question.answer}`;
+      questionSummary.appendChild(correctAnswerElement);
+
+      summaryContainer.appendChild(questionSummary);
+    });
+
+    allCategory.appendChild(summaryContainer);
+  };
   const div = document.querySelectorAll(".categories");
   const section = document.querySelectorAll(".pickDivButton");
   div.forEach((cat) => (cat.className = "hide"));
@@ -262,25 +351,36 @@ const startQuiz = (questions) => {
     questionContainer.innerHTML = ""; // Clear any existing content
 
     const questionElement = document.createElement("p");
+    questionElement.className = "questionPar";
     questionElement.textContent = questions[index].question;
     questionContainer.appendChild(questionElement);
-
+    questionContainer.className = "questionContainer";
     const input = document.createElement("input");
     input.type = "text";
+    input.placeholder = "";
+    input.setAttribute("autofocus", "true");
     questionContainer.appendChild(input);
 
     const submitButton = document.createElement("button");
-    submitButton.textContent = "Submit";
+    submitButton.textContent = "SUBMIT";
+    submitButton.className = "submit";
     submitButton.addEventListener("click", () => {
       const userAnswer = input.value.trim();
-      checkAnswer(index, userAnswer);
+
+      let confirmSubmit = window.confirm(
+        `Are you sure you want to submit it? \n ${userAnswer} `
+      ); // Confirm right or worng answer
+      if (confirmSubmit) {
+        checkAnswer(index, userAnswer);
+      }
     });
     questionContainer.appendChild(submitButton);
 
     allCategory.appendChild(questionContainer);
   };
   const skipButton = document.createElement("button");
-  skipButton.textContent = "Skip";
+  skipButton.textContent = "SKIP";
+  skipButton.className = "skip";
   skipButton.addEventListener("click", () => {
     wrongCounter++;
     updateCounters();
@@ -289,7 +389,7 @@ const startQuiz = (questions) => {
     if (currentQuestionIndex < totalQuestions) {
       showQuestion(currentQuestionIndex);
     } else {
-      console.log("Quiz completed!"); // All questions answered
+      showSummary(questions); // Show quiz result
     }
   });
   allCategory.appendChild(skipButton);
@@ -298,18 +398,24 @@ const startQuiz = (questions) => {
     if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
       console.log("Correct answer!");
       correctCounter++;
-
+      currentQuestionIndex++;
       // Move to the next question
       if (currentQuestionIndex < totalQuestions) {
-        showQuestion(++currentQuestionIndex);
+        showQuestion(currentQuestionIndex);
       } else {
-        console.log("Quiz completed!"); // All questions answered
+        showSummary(questions);
       }
     } else {
       console.log("Wrong answer!");
       wrongCounter++;
+      currentQuestionIndex++;
+      if (currentQuestionIndex < totalQuestions) {
+        showQuestion(currentQuestionIndex);
+      } else {
+        showSummary();
+      }
     }
-    updateCounters(); // Update the counters after each answer
+    updateCounters(); // Updte the counters after each answer
   };
 
   const updateCounters = () => {
@@ -325,8 +431,54 @@ const startQuiz = (questions) => {
     <p>Correct Answers: <span id="correct-counter">0</span></p>
     <p>Wrong Answers: <span id="wrong-counter">0</span></p>
   `;
+  countersContainer.className = "counter";
   allCategory.appendChild(countersContainer);
 
   // Show the first question
   showQuestion(currentQuestionIndex);
+};
+const showSummary = (questions) => {
+  const pickDiv = document.querySelector(".pickDiv");
+  pickDiv.className = "hide";
+  const questionContainer = document.querySelector("#question-container");
+  questionContainer.className = "hide";
+  const questionCounter = document.querySelector(".counter");
+  questionCounter.className = "hide";
+  const skip = document.querySelector(".skip");
+  skip.className = "hide";
+  const summaryContainer = document.createElement("div");
+  summaryContainer.id = "summary-container";
+
+  // Create a heading for the summary
+  const summaryHeading = document.createElement("h2");
+  summaryHeading.textContent = "Quiz Summary";
+  summaryContainer.appendChild(summaryHeading);
+
+  // Loop through each question
+  questions.forEach((question, index) => {
+    const questionSummary = document.createElement("div");
+    questionSummary.classList.add("question-summary");
+
+    // Create a paragraph for the question
+    const questionElement = document.createElement("p");
+    questionElement.textContent = `Question ${index + 1}: ${question.question}`;
+    questionSummary.appendChild(questionElement);
+
+    // Create a paragraph for the user's answer
+    const userAnswerElement = document.createElement("p");
+    if (question.userAnswer !== undefined) {
+      userAnswerElement.textContent = `Your Answer: ${question.userAnswer}`;
+    }
+
+    questionSummary.appendChild(userAnswerElement);
+
+    // Create a paragraph for the correct answer
+    const correctAnswerElement = document.createElement("p");
+    correctAnswerElement.textContent = `Correct Answer: ${question.answer}`;
+    questionSummary.appendChild(correctAnswerElement);
+
+    summaryContainer.appendChild(questionSummary);
+  });
+
+  allCategory.appendChild(summaryContainer);
 };
