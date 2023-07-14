@@ -18,6 +18,7 @@ const fetchIndovinello = async () => {
 };
 const fetchQuestion = async (category, difficulty) => {
   let limit;
+  const formattedCategories = category.split(" ").join("");
 
   if (difficulty === "EASY") {
     limit = 10;
@@ -31,7 +32,7 @@ const fetchQuestion = async (category, difficulty) => {
 
   try {
     const res = await fetch(
-      `https://api.api-ninjas.com/v1/trivia?category=${category}&limit=${limit}`,
+      `https://api.api-ninjas.com/v1/trivia?category=${formattedCategories}&limit=${limit}`,
       {
         method: "GET",
         headers: {
@@ -56,20 +57,20 @@ const fetchQuestion = async (category, difficulty) => {
 };
 
 const allCategoryArray = [
-  "Literature",
+  "Art Literature",
   "Language",
-  "Science",
+  "Science Mature",
   "General",
   "People Places",
   "Geography",
-  "History",
+  "History Holidays",
   "Entertainment",
-  "Toys Game",
+  "Toys Games",
   "Music",
   "Mathematics",
-  "Food and Drinks",
-  "Mythology",
-  "Sports",
+  "Food Drink",
+  "Religion Mythology",
+  "Sports Leisure",
 ];
 
 const numberOfQuestions = [5, 10, 15, 30];
@@ -80,6 +81,7 @@ const category = document.querySelector(".category");
 const allCategory = document.querySelector("#allCategory");
 const choice = document.querySelector(".choose");
 const riddle = document.querySelector("#riddle");
+const pickDiv = document.querySelector(".pickDiv");
 riddle.className = "hide";
 const userChoice = document.createElement("h6");
 pickCategory.className = "hide";
@@ -93,6 +95,8 @@ const buttonPlay = () => {
   choice.addEventListener("click", async () => {
     pickCategory.className = "hide";
     riddle.className = "visible";
+    allCategory.className = "hide";
+
     welcomeDiv.className = "hide";
     let title = document.createElement("h5");
     let indovinello = document.createElement("p");
@@ -104,6 +108,7 @@ const buttonPlay = () => {
     input.className = "inputRiddle";
     let question = await fetchIndovinello();
     body.style = "animation:none";
+
     indovinello.innerText = question.question;
     title.innerText =
       "YOU MUST UNLOCK THE SECRET OF THE EYE \n TO REVEAL THE HIDDEN PATH";
@@ -167,7 +172,7 @@ const buttonPlay = () => {
             });
             div.addEventListener("click", () => {
               let answer = question.answer.toLowerCase();
-              input.value = answer;
+              div.innerText = answer;
             });
             clearTimeout(timer);
           }, 0);
@@ -230,11 +235,13 @@ const appendSelectedCategory = async () => {
     chooseCategory(selectedCategory);
   });
   start.innerHTML = "START";
+
   text.textContent = "CHOOSE DIFFICULTY";
   button1.innerHTML = "EASY";
   button1.className = "myButton";
   button2.className = "myButton";
   button3.className = "myButton";
+  button4.className = "myButton";
   button2.innerHTML = "MEDIUM";
   button3.innerHTML = "HARD";
   button4.innerHTML = "CRAZY";
@@ -278,6 +285,7 @@ const appendSelectedCategory = async () => {
     );
 
     startQuiz(questions);
+    start.className = "hide";
   });
 };
 
@@ -305,6 +313,25 @@ const startQuiz = (questions) => {
     summaryHeading.textContent = "Quiz Summary";
     summaryContainer.appendChild(summaryHeading);
 
+    // Create counters for correct and wrong answers
+    const correctCounterElement = document.createElement("p");
+    correctCounterElement.textContent = `Correct Answers: ${correctCounter}`;
+    correctCounterElement.className = "correct";
+
+    summaryContainer.appendChild(correctCounterElement);
+
+    const wrongCounterElement = document.createElement("p");
+    wrongCounterElement.textContent = `Wrong Answers: ${wrongCounter}`;
+    wrongCounterElement.className = "wrong";
+    summaryContainer.appendChild(wrongCounterElement);
+    const restartButton = document.createElement("button");
+    restartButton.textContent = "Restart Game";
+    restartButton.className = "correct";
+    restartButton.addEventListener("click", () => {
+      // Reload the page to restart the game
+      window.location.reload();
+    });
+    summaryContainer.appendChild(restartButton);
     questions.forEach((question, index) => {
       const questionSummary = document.createElement("div");
       questionSummary.classList.add("question-summary");
@@ -324,6 +351,18 @@ const startQuiz = (questions) => {
       const correctAnswerElement = document.createElement("p");
       correctAnswerElement.textContent = `Correct Answer: ${question.answer}`;
       questionSummary.appendChild(correctAnswerElement);
+
+      // Check if the answer is correct or wrong
+      if (
+        question.userAnswer !== undefined &&
+        question.userAnswer.toLowerCase() === question.answer.toLowerCase()
+      ) {
+        userAnswerElement.classList.add("correct-answer");
+        correctAnswerElement.classList.add("correct-answer");
+      } else if (question.userAnswer !== undefined) {
+        userAnswerElement.classList.add("wrong-answer");
+        correctAnswerElement.classList.add("wrong-answer");
+      }
 
       summaryContainer.appendChild(questionSummary);
     });
@@ -361,8 +400,13 @@ const startQuiz = (questions) => {
 
       let confirmSubmit = true;
       if (confirmSubmit) {
-        userAnswers.push(userAnswer);
-        checkAnswer(index, userAnswer);
+        if (userAnswer !== "") {
+          userAnswers.push(userAnswer);
+          checkAnswer(index, userAnswer);
+        } else {
+          userAnswers.push("No answer");
+          checkAnswer(index, "No answer");
+        }
       }
 
       input.value = "";
