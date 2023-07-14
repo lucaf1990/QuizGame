@@ -290,6 +290,8 @@ let wrongCounter = 0;
 const startQuiz = (questions) => {
   let correctCounter = 0;
   let wrongCounter = 0;
+  const userAnswers = []; // Array to store user's answers
+
   const showSummary = () => {
     const pickDiv = document.querySelector(".pickDiv");
     pickDiv.className = "hide";
@@ -321,12 +323,9 @@ const startQuiz = (questions) => {
 
       // Create a paragraph for the user's answer
       const userAnswerElement = document.createElement("p");
-      if (question.userAnswer !== undefined) {
-        userAnswerElement.textContent = `Your Answer: ${question.userAnswer}`;
-      } else {
-        userAnswerElement.textContent = "NO ANSWER -QUESTION WAS SKIPPED";
-      }
-
+      userAnswerElement.textContent = `Your Answer: ${
+        userAnswers[index] !== undefined ? userAnswers[index] : "SKIPPED"
+      }`;
       questionSummary.appendChild(userAnswerElement);
 
       // Create a paragraph for the correct answer
@@ -339,6 +338,7 @@ const startQuiz = (questions) => {
 
     allCategory.appendChild(summaryContainer);
   };
+
   const div = document.querySelectorAll(".categories");
   const section = document.querySelectorAll(".pickDivButton");
   div.forEach((cat) => (cat.className = "hide"));
@@ -367,21 +367,34 @@ const startQuiz = (questions) => {
     submitButton.addEventListener("click", () => {
       const userAnswer = input.value.trim();
 
-      let confirmSubmit = window.confirm(
-        `Are you sure you want to submit it? \n ${userAnswer} `
-      ); // Confirm right or worng answer
+      let confirmSubmit = true; // Default to true for non-skipped questions
+      if (userAnswer === "") {
+        confirmSubmit = window.confirm(
+          "Are you sure you want to skip this question?"
+        );
+      } else {
+        confirmSubmit = window.confirm(
+          `Are you sure you want to submit your answer: ${userAnswer}?`
+        );
+      }
+
       if (confirmSubmit) {
+        userAnswers.push(userAnswer); // Store the user's answer
         checkAnswer(index, userAnswer);
       }
-    });
-    questionContainer.appendChild(submitButton);
 
+      input.value = ""; // Reset the userAnswer input field
+    });
+
+    questionContainer.appendChild(submitButton);
     allCategory.appendChild(questionContainer);
   };
+
   const skipButton = document.createElement("button");
   skipButton.textContent = "SKIP";
   skipButton.className = "skip";
   skipButton.addEventListener("click", () => {
+    const userAnswer = "SKIPPED";
     wrongCounter++;
     updateCounters();
     currentQuestionIndex++;
@@ -389,33 +402,32 @@ const startQuiz = (questions) => {
     if (currentQuestionIndex < totalQuestions) {
       showQuestion(currentQuestionIndex);
     } else {
-      showSummary(questions); // Show quiz result
+      showSummary(); // Pass the userAnswer to showSummary function
     }
   });
+
   allCategory.appendChild(skipButton);
+
   const checkAnswer = (index, userAnswer) => {
     let correctAnswer = questions[index].answer;
+
     if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
       console.log("Correct answer!");
       correctCounter++;
-      currentQuestionIndex++;
-      // Move to the next question
-      if (currentQuestionIndex < totalQuestions) {
-        showQuestion(currentQuestionIndex);
-      } else {
-        showSummary(questions);
-      }
     } else {
       console.log("Wrong answer!");
       wrongCounter++;
-      currentQuestionIndex++;
-      if (currentQuestionIndex < totalQuestions) {
-        showQuestion(currentQuestionIndex);
-      } else {
-        showSummary();
-      }
     }
-    updateCounters(); // Updte the counters after each answer
+
+    updateCounters(); // Update the counters after each answer
+
+    currentQuestionIndex++; // Move to the next question
+
+    if (currentQuestionIndex < totalQuestions) {
+      showQuestion(currentQuestionIndex);
+    } else {
+      showSummary();
+    }
   };
 
   const updateCounters = () => {
@@ -436,49 +448,4 @@ const startQuiz = (questions) => {
 
   // Show the first question
   showQuestion(currentQuestionIndex);
-};
-const showSummary = (questions) => {
-  const pickDiv = document.querySelector(".pickDiv");
-  pickDiv.className = "hide";
-  const questionContainer = document.querySelector("#question-container");
-  questionContainer.className = "hide";
-  const questionCounter = document.querySelector(".counter");
-  questionCounter.className = "hide";
-  const skip = document.querySelector(".skip");
-  skip.className = "hide";
-  const summaryContainer = document.createElement("div");
-  summaryContainer.id = "summary-container";
-
-  // Create a heading for the summary
-  const summaryHeading = document.createElement("h2");
-  summaryHeading.textContent = "Quiz Summary";
-  summaryContainer.appendChild(summaryHeading);
-
-  // Loop through each question
-  questions.forEach((question, index) => {
-    const questionSummary = document.createElement("div");
-    questionSummary.classList.add("question-summary");
-
-    // Create a paragraph for the question
-    const questionElement = document.createElement("p");
-    questionElement.textContent = `Question ${index + 1}: ${question.question}`;
-    questionSummary.appendChild(questionElement);
-
-    // Create a paragraph for the user's answer
-    const userAnswerElement = document.createElement("p");
-    if (question.userAnswer !== undefined) {
-      userAnswerElement.textContent = `Your Answer: ${question.userAnswer}`;
-    }
-
-    questionSummary.appendChild(userAnswerElement);
-
-    // Create a paragraph for the correct answer
-    const correctAnswerElement = document.createElement("p");
-    correctAnswerElement.textContent = `Correct Answer: ${question.answer}`;
-    questionSummary.appendChild(correctAnswerElement);
-
-    summaryContainer.appendChild(questionSummary);
-  });
-
-  allCategory.appendChild(summaryContainer);
 };
